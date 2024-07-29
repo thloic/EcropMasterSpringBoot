@@ -14,7 +14,7 @@ public interface ProducteurService {
     Optional<ProducteurDto> getProducteurById(Long producteurId);
     public ProducteurDto updateProducteur(Long id, ProducteurDto producteurDto);
     public  void deleteProducteur(Long id);
-    public ProducteurDto findByNom(String nom);
+    Optional<Producteur> findByNom(String nom);
 
     public ProducteurDto convertToDTO(Producteur producteur);
 

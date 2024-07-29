@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import yenduGroup.EcropMaster.DTO.CultureDto;
 import yenduGroup.EcropMaster.DTO.ParcelleDto;
 import yenduGroup.EcropMaster.DTO.ProducteurDto;
+import yenduGroup.EcropMaster.Entities.Culture;
 import yenduGroup.EcropMaster.Entities.Producteur;
+import yenduGroup.EcropMaster.Repositories.CultureRepository;
 import yenduGroup.EcropMaster.Repositories.ProducteurRepository;
 import yenduGroup.EcropMaster.Services.CodeService;
 
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class CodeServiceImpl implements CodeService {
 
     private final ProducteurRepository producteurRepository;
+    private final CultureRepository cultureRepository;
 
     @Override
     public String generateCode(ParcelleDto parcelleDto, ProducteurDto producteurDto, CultureDto cultureDto) {
@@ -27,6 +30,11 @@ public class CodeServiceImpl implements CodeService {
         // Vérifier si le producteur a été trouvé
         if (optionalProducteur.isEmpty()) {
             throw new RuntimeException("Producteur non trouvé");
+
+        }
+        Optional<Culture> optionalCulture = cultureRepository.findByNom(cultureDto.getNom());
+        if (optionalCulture.isEmpty()) {
+            throw new RuntimeException("Culture non trouvée");
         }
 
         // Obtenir l'ID du producteur

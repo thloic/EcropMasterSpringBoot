@@ -22,5 +22,6 @@ public interface ParcelleService {
     public ParcelleDto convertToDTO(Parcelle parcelle);
     public void verifierRotationsCulturales();
     public void envoyerAlerte(ParcelleDto parcelleDto);
+    public List<ParcelleDto> getAllParcelles();
 
 }

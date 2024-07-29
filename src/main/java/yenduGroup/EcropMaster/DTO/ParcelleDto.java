@@ -24,10 +24,8 @@ public class ParcelleDto {
     private int nombredeParcelle;
     private Date anneeAdhesion;
 
-    private Set<ProducteurDto> producteurDtos;
-    private Set<Culture> cultures;
+    private ProducteurDto producteur;  // Correction ici, utilisation d'un seul producteur
+    private Set<CultureDto> cultures;
     private Set<Cooperative> cooperatives;
     private int anneesConsecutivesCulturePrincipale;
-
-
 }

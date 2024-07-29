@@ -8,6 +8,7 @@ import yenduGroup.EcropMaster.DTO.CultureDto;
 import yenduGroup.EcropMaster.DTO.ParcelleDto;
 import yenduGroup.EcropMaster.DTO.ProducteurDto;
 import yenduGroup.EcropMaster.Entities.Parcelle;
+import yenduGroup.EcropMaster.Entities.Producteur;
 import yenduGroup.EcropMaster.Repositories.ParcelleRepository;
 import yenduGroup.EcropMaster.Repositories.ProducteurRepository;
 import yenduGroup.EcropMaster.Services.CodeService;
@@ -22,14 +23,16 @@ import java.util.stream.Collectors;
 @Transactional
 public class ParcelleServiceImpl implements ParcelleService {
     @Autowired
-    public final ParcelleRepository parcelleRepository;
-    public final ProducteurRepository producteurRepository;
+    private final ParcelleRepository parcelleRepository;
+    private final ProducteurRepository producteurRepository;
     @Autowired
     private final CodeService codeService;
 
-
     @Override
     public ParcelleDto createParcelle(ParcelleDto parcelleDto, ProducteurDto producteurDto, CultureDto cultureDto) {
+        if (parcelleDto == null || producteurDto == null || cultureDto == null) {
+            throw new IllegalArgumentException("ParcelleDto, ProducteurDto, and CultureDto cannot be null");
+        }
         Parcelle parcelle = new Parcelle();
         parcelle.setSuperficie(parcelleDto.getSuperficie());
         parcelle.setSituation(parcelleDto.getSituation());
@@ -38,20 +41,24 @@ public class ParcelleServiceImpl implements ParcelleService {
         parcelle.setReferentiel(parcelleDto.getReferentiel());
         parcelle.setNombredeParcelle(parcelleDto.getNombredeParcelle());
 
-        // Génération du code de la parcelle
         String codeParcelle = codeService.generateCode(parcelleDto, producteurDto, cultureDto);
         parcelle.setCodeParcelle(codeParcelle);
 
-        // Sauvegarde de la parcelle
-        Parcelle savedParcelle = parcelleRepository.save(parcelle);
+        // Ajouter le producteur trouvé
+        parcelle.setProducteur(producteurRepository.findById(producteurDto.getId()).orElseThrow());
 
+        Parcelle savedParcelle = parcelleRepository.save(parcelle);
         return convertToDTO(savedParcelle);
     }
 
+    @Override
+    public List<ParcelleDto> getAllParcellesByProducteurId(Long producerId) {
+        return null;
+    }
 
     @Override
-    public List<ParcelleDto> getAllParcellesByProducteurId(Long producteurId) {
-        List<Parcelle> parcelles = parcelleRepository.findByProducteurId(producteurId);
+    public List<ParcelleDto> getAllParcelles() {
+        List<Parcelle> parcelles = parcelleRepository.findAll();
         return parcelles.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -94,28 +101,21 @@ public class ParcelleServiceImpl implements ParcelleService {
                 .region(parcelle.getRegion())
                 .village(parcelle.getVillage())
                 .codeParcelle(parcelle.getCodeParcelle())
+                .producteur(ProducteurDto.builder() // Conversion du producteur
+                        .id(parcelle.getProducteur().getId())
+                        .nom(parcelle.getProducteur().getNom())
+                        .dateAdhesion(parcelle.getProducteur().getDateAdhesion())
+                        .build())
                 .build();
     }
 
     @Override
     public void verifierRotationsCulturales() {
-        List<Parcelle> parcelles = parcelleRepository.findAll();
 
-        for (Parcelle parcelle : parcelles) {
-            ParcelleDto parcelleDto = convertToDTO(parcelle);
-            if (parcelleDto.getAnneesConsecutivesCulturePrincipale() >= 3) {
-                envoyerAlerte(parcelleDto);
-            }
-        }
     }
+
     @Override
     public void envoyerAlerte(ParcelleDto parcelleDto) {
 
     }
-
-
-
-
 }
-
-

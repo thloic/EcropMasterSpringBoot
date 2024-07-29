@@ -69,6 +69,11 @@ public class ProdcuteurServiceImpl implements ProducteurService {
     }
 
     @Override
+    public Optional<Producteur> findByNom(String nom) {
+        return producteurRepository.findByNom(nom);
+    }
+
+    @Override
     public ProducteurDto convertToDTO(Producteur producteur) {
         if (producteur == null) {
             throw new IllegalArgumentException("le producteur ne peut pas etre null");
@@ -85,12 +90,7 @@ public class ProdcuteurServiceImpl implements ProducteurService {
                 .build();
     }
 
-    @Override
-    public ProducteurDto findByNom(String nom) {
-        Optional<Producteur> producteur = producteurRepository.findByNom(nom);
-        // ou lancez une exception selon votre logique
-        return producteur.map(this::convertToDTO).orElse(null);
-    }
+
 
     private Producteur convertToEntity(ProducteurDto producteurDto) {
         if (producteurDto == null) {
